@@ -1,0 +1,16 @@
+{
+  "name": "norq",
+  "description": "Queue implementation for Node backed by Redis",
+  "version": "0.0.0",
+  "repository": {
+    "url": ""
+  },
+  "author": "Christian Smith <smith@anvil.io> (http://anvil.io)",
+  "main": ".lib/norq.js",
+  "directories": {
+    "lib": "."
+  },
+  "engines": {
+    "node": "*"
+  }
+}
