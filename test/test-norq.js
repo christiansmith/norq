@@ -211,8 +211,10 @@ exports['push error'] = nodeunit.testCase({
 function setupQueue(client, queue, len, callback) {
   if (len > 0) {
     client.push(queue, { _id: len }, function (err, result) {
-       // wait a millisecond to guarantee the order
-       setTimeout(setupQueue(client, queue, len - 1, callback), 1);
+       // wait a few milliseconds to guarantee the order
+       // this is not happening
+       // wtf?
+       setTimeout(setupQueue(client, queue, len - 1, callback), 100000);
     });
   } else {
     callback();
@@ -231,19 +233,56 @@ exports['pop'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
-  // unit test
-  'removes the first item on the list and sends it to the callback': function (test) {
-    test.expect(1);
-    redis_client.zcard('work', function (err, result) {
-      test.equal(result, 10);
+  'passes value to a callback': function (test) {
+    test.expect(2);
+    this.client.pop('work', function (err, result) {
+      test.equal(err, null);
+      test.equal(JSON.parse(result)._id, 10);
       test.done();
-    }); 
+    });   
   },
   
+  'removes item from sorted set': function (test) {
+    test.expect(2);
+    this.client.pop('work', function (err, result) {
+      redis_client.multi()
+        .zcard('work')
+        .zrange('work', 0, 0)
+        .exec(function (err, result) {
+           test.equal(result[0], 9);
+           test.notEqual(result[1], 10);
+           test.done();
+        });
+    });
+  },
+
+  'deletes key storing the value': function (test) {
+    test.expect(1);
+    this.client.pop('work', function (err, result) {
+      var key = 'work:' + JSON.parse(result)._id;
+      redis_client.get(key, function (err, result) {
+        test.equal(result, null);      
+        test.done();
+      }); 
+    });
+  },
+  
+  // test empty queue returns null
+  // test errors
   
 });
+
+// peek
+// size
+// range
+// head
+// tail
+// get
+// set
+// remove
+
+
 
