@@ -275,12 +275,173 @@ exports['pop'] = nodeunit.testCase({
   
 });
 
-// peek
-// size
-// range
-// head
-// tail
-// get
+
+exports['peek'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    
+    callback();
+  },
+
+  'passes the value of the first item to a callback': function (test) {
+    test.expect(1);
+    this.client.peek('work', function (err, result) {
+      test.equal(result, JSON.stringify({ _id: 10 }));
+      test.done();
+    });
+  },
+  
+});
+
+
+exports['size'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    
+    callback();
+  },
+
+  // unit test
+  'passes number of elements in the sorted set to callback': function (test) {
+    test.expect(1);
+    this.client.size('work', function (err, result) {
+      test.equal(result, 10);
+      test.done();
+    });
+  },
+  
+});
+
+
+exports['range'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    
+    callback();
+  },
+
+  'passes a range of items by index to callback': function (test) {
+    test.expect(2);
+    this.client.range('work', 0, 4, function (err, result) {
+      test.equal(result.length, 5);
+      test.equal(result[0], JSON.stringify({ _id: 10 }));
+      test.done();
+    });
+  },
+
+});
+
+
+exports['head'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    
+    callback();
+  },
+
+  'passes the first n values in the queue to callback': function (test) {
+    test.expect(2);
+    this.client.head('work', 5, function (err, result) {
+      test.equal(result.length, 5);
+      test.equal(result[0], JSON.stringify({ _id: 10 }));
+      test.done();
+    });
+  },
+  
+});
+
+exports['tail'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    
+    callback();
+  },
+
+  'passes the last n values in the queue to callback in reverse order': function (test) {
+    test.expect(2);
+    this.client.tail('work', 5, function (err, result) {
+      test.equal(result.length, 5);
+      test.notEqual(result[0], JSON.stringify({ _id: 10 }));
+      test.done();
+    });
+  },
+  
+});
+
+
+
+exports['get'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    
+    callback();
+  },
+
+  'returns the value of a key': function (test) {
+    test.expect(1);
+    this.client.get('work', 5, function (err, result) {
+      test.equal(result, JSON.stringify({ _id: 5 }));
+      test.done();
+    });
+  },
+  
+});
+
+
 // set
 // remove
 
