@@ -442,8 +442,114 @@ exports['get'] = nodeunit.testCase({
 });
 
 
-// set
-// remove
 
+exports['set'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    this.update = { _id: 10, update: 'some value' };
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    
+    callback();
+  },
+
+  'passes _id and status to the callback result': function (test) {
+    test.expect(3);
+    var that = this;
+    this.client.set('work', this.update._id, this.update, function (err, result) {
+      test.equal(err, null);
+      test.equal(result._id, that.update._id);
+      test.equal(result.status, 'OK');
+      test.done();
+    });
+  },
+
+  'updates the value of an existing queue item': function (test) {
+    test.expect(1);
+    var that = this;
+    var id = 10, key = 'work:10';
+    this.client.set('work', id, this.update, function (err, result) {
+      redis_client.get(key, function (err, result) {
+        test.equal(result, JSON.stringify(that.update));
+        test.done();
+      });    
+    });
+  },
+  
+  // does not set a key if the item is not in the queue
+
+  // passes an error to callback if the item is not in the queue
+
+  // validates data against a json-schema
+  
+  // validates that data is json
+
+  // ensures there is an id in the new value and it matches the id argument
+
+});
+
+
+exports['remove'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+
+  'removes item from sorted set': function (test) {
+    test.expect(3);
+    this.client.remove('work', 5, function (err, result) {
+      redis_client.multi()
+        .zcard('work')
+        .zrank('work', 5) 
+        .exec(function (err, result) {
+           test.equal(result[0], 9); 
+           test.equal(result[1], null);
+           test.notEqual(result[1], 5); 
+           test.done();
+        });
+    });
+  },
+  
+  'deletes key storing the value': function (test) {
+    test.expect(1);
+    this.client.remove('work', 5, function (err, result) {
+      var key = 'work:5';
+      redis_client.get(key, function (err, result) {
+        test.equal(result, null);      
+        test.done();
+      }); 
+    });
+  },
+  
+  'passes redis results to a callback': function (test) {
+    test.expect(3);
+    this.client.remove('work', 5, function (err, results) {
+      test.equal(err, null);
+      test.equal(results[0], 1);
+      test.equal(results[1], 1);
+      test.done();
+    });   
+  },
+
+  // test errors
+  
+});
 
 
