@@ -460,6 +460,46 @@ exports['set'] = nodeunit.testCase({
     callback();
   },
 
+  'requires queue to be defined in model': function (test) {
+    test.expect(1);
+    this.client.set('nada', 10, {}, function (err, result) {
+      test.equal(err.message, "Queue not found.");
+      test.done();
+    }); 
+  },
+  
+  'requires data to be an object': function (test) {
+    test.expect(1);
+    this.client.set('work', 10, undefined, function (err, result) {
+      test.equal(err.message, "Data must be an object."); 
+      test.done();
+    });  
+  },
+
+  'requires data to not be null': function (test) {
+    test.expect(1);
+    this.client.set('work', 10, null, function (err, result) {
+       test.equal(err.message, "Data must be an object.");
+       test.done();
+    });
+  },
+
+  'requires data to have an _id property': function (test) {
+    test.expect(1);
+    this.client.set('work', 10, {}, function (err, result) {
+      test.equal(err.message, "Data must have an _id property that matches the id argument.");
+      test.done();
+    });
+  },
+  
+  'requires data._id to match id argument': function (test) {
+    test.expect(1);
+    this.client.set('work', 10, { _id: 123 }, function (err, result) {
+      test.equal(err.message, "Data must have an _id property that matches the id argument.");
+      test.done();
+    });
+  },
+
   'passes _id and status to the callback result': function (test) {
     test.expect(3);
     var that = this;
@@ -482,16 +522,12 @@ exports['set'] = nodeunit.testCase({
       });    
     });
   },
-  
-  // does not set a key if the item is not in the queue
 
-  // passes an error to callback if the item is not in the queue
 
   // validates data against a json-schema
   
   // validates that data is json
-
-  // ensures there is an id in the new value and it matches the id argument
+  
 
 });
 
