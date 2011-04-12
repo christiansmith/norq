@@ -111,24 +111,6 @@ exports['push'] = nodeunit.testCase({
     });
   },
   
-  
-  /*
-
-  'validates data against a json-schema': function (test) {
-    test.expect(1);
-    
-    test.done();
-  },
-  
-
-  'passes an error to callback if data is not valid': function (test) {
-    test.expect(1);
-    
-    test.done();
-  },
-
-  */
-
   'passes data._id to callback': function (test) {
     test.expect(1);
     this.client.push('work', { _id: 'g1bb3r1sh' }, function (err, result) {
@@ -288,7 +270,6 @@ exports['peek'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
@@ -315,7 +296,6 @@ exports['size'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
@@ -343,7 +323,6 @@ exports['range'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
@@ -371,7 +350,6 @@ exports['head'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
@@ -398,7 +376,6 @@ exports['tail'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
@@ -523,12 +500,6 @@ exports['set'] = nodeunit.testCase({
     });
   },
 
-
-  // validates data against a json-schema
-  
-  // validates that data is json
-  
-
 });
 
 
@@ -589,3 +560,51 @@ exports['remove'] = nodeunit.testCase({
 });
 
 
+exports['validation'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model_with_schema = { 
+      work: { 
+        name: 'work', 
+        schema: { type: 'object',
+                  properties: {
+                    description: { type: 'string' },
+                    quantity: { type: 'number' }
+                  }
+                } 
+              }
+            }
+    this.client = norq.createClient(this.model_with_schema);
+    callback();
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'in push passes errors to callback': function (test) {
+    test.expect(3);
+    this.client.push('work', { quantity: 'wrong type' }, function (err, result) {
+      test.equal(result, undefined);
+      test.equal(err[0].message, 'is missing and it is not optional');
+      test.equal(err[1].message, 'string value found, but a number is required');
+      test.done();
+    }); 
+  },
+
+  'in set passes errors to callback': function (test) {
+    test.expect(3);
+    var client = this.client;
+    var data = { description: 'about', quantity: 123 };
+    client.push('work', data, function (err, result) {
+      client.set('work', result._id, { quantity: 'wrong type' }, function (err, result) {
+        test.equal(result, undefined);
+        test.equal(err[0].message, 'is missing and it is not optional');
+        test.equal(err[1].message, 'string value found, but a number is required');
+        test.done();
+      }); 
+    });
+  },
+   
+});

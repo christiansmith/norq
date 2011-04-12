@@ -1,5 +1,12 @@
 {
   "work": {
-    "name": "work"  
+    "name": "work",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "quantity": { "type": "number" }
+      }
+    }
   }  
 }
