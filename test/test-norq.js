@@ -163,9 +163,11 @@ exports['push error'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);  
-    callback();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.client = norq.createClient({ wrong: { name: 'wrong' }});
+    redis_client.set('wrong', 'contrived to test failure', function (err, res) {
+      callback();
+    });
   },
 
   tearDown: function (callback) {
@@ -174,18 +176,26 @@ exports['push error'] = nodeunit.testCase({
 
   'passes an error to callback if redis transaction fails': function (test) {
     test.expect(2);
-    var client = norq.createClient({ wrong: { name: 'wrong' }});
-    redis_client.set('wrong', 'contrived to test failure', function (err, res) {
-      client.push('wrong', {}, function (err, result) {
-        test.equal(err.message, 
-                  'ERR Operation against a key holding the wrong kind of value');
-        test.equal(result, undefined);
-        test.done();
-      }); 
-    });
+    var that = this;
+    this.client.push('wrong', {}, function (err, result) {
+      test.equal(err.message, that.error);
+      test.equal(result, undefined);
+      test.done();
+    }); 
   },
   
-  // test key is deleted if zadd fails
+  'deletes key if zadd fails': function (test) {
+    test.expect(2);
+    var that = this;
+    this.client.push('wrong', { _id: 123 }, function (err, result) {
+      test.equal(err.message, that.error);
+      redis_client.get('wrong:123', function (err, result) {
+        test.equal(result, null);
+        test.done();
+      });
+    });    
+  },
+  
   // think up a few more failure cases
 
 });
@@ -253,11 +263,49 @@ exports['pop'] = nodeunit.testCase({
     });
   },
   
-  // test empty queue returns null
-  // test errors
-  
+  'empty queue passes null to a callback': function (test) {
+    test.expect(2);
+    var client = this.client;
+    redis_client.del('work', function (err, result) {
+      client.pop('work', function (err, result) {
+        test.equal(err, null);
+        test.equal(result, null);
+        test.done();
+      });     
+    });  
+  },
+
 });
 
+exports['pop error'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.model = { wrong: { name: 'wrong' }}
+    this.client = norq.createClient(this.model);
+    redis_client.set('wrong', 'contrived to test failure', function (err, res) {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+  
+  'passes a zrange error to callback ': function (test) {
+    test.expect(1);
+    var that = this;
+    this.client.pop('wrong', function (err, result) {
+      test.equal(err.message, that.error);
+      test.done();
+    }); 
+  },
+
+  // passes a get error to callback
+  // passes a remove error to callback
+
+});
 
 exports['peek'] = nodeunit.testCase({
 
@@ -284,6 +332,33 @@ exports['peek'] = nodeunit.testCase({
   
 });
 
+exports['peek error'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.model = { wrong: { name: 'wrong' }}
+    this.client = norq.createClient(this.model);
+    redis_client.set('wrong', 'contrived to test failure', function (err, res) {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'passes a zrange error to callback': function (test) {
+    test.expect(1);
+    var that = this;
+    this.client.peek('wrong', function (err, result) {
+      test.equal(err.message, that.error);
+      test.done();
+    });
+  },
+
+});
+
 
 exports['size'] = nodeunit.testCase({
 
@@ -300,7 +375,6 @@ exports['size'] = nodeunit.testCase({
     callback();
   },
 
-  // unit test
   'passes number of elements in the sorted set to callback': function (test) {
     test.expect(1);
     this.client.size('work', function (err, result) {
@@ -310,6 +384,35 @@ exports['size'] = nodeunit.testCase({
   },
   
 });
+
+
+exports['size error'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.model = { wrong: { name: 'wrong' }}
+    this.client = norq.createClient(this.model);
+    redis_client.set('wrong', 'contrived to test failure', function (err, res) {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'passes a zcard error to callback': function (test) {
+    test.expect(1);
+    var that = this;
+    this.client.size('wrong', function (err, result) {
+      test.equal(err.message, that.error);
+      test.done();
+    });
+  },
+
+});
+
 
 
 exports['range'] = nodeunit.testCase({
@@ -338,6 +441,34 @@ exports['range'] = nodeunit.testCase({
 
 });
 
+exports['range error'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.model = { wrong: { name: 'wrong' }}
+    this.client = norq.createClient(this.model);
+    redis_client.set('wrong', 'contrived to test failure', function (err, res) {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'passes a zrange error to callback': function (test) {
+    test.expect(1);
+    var that = this;
+    this.client.range('wrong', 0, -1, function (err, result) {
+      test.equal(err.message, that.error);
+      test.done();
+    });
+  },
+
+  // how to test mget failure?
+
+});
 
 exports['head'] = nodeunit.testCase({
 
@@ -388,9 +519,38 @@ exports['tail'] = nodeunit.testCase({
       test.done();
     });
   },
-  
+
 });
 
+exports['tail error'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.model = { wrong: { name: 'wrong' }}
+    this.client = norq.createClient(this.model);
+    redis_client.set('wrong', 'contrived to test failure', function (err, res) {
+      callback();
+    });
+    // also need to setupQueue
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'passes a zcard error to callback': function (test) {
+    test.expect(1);
+    var that = this;
+    this.client.tail('wrong', 5, function (err, result) {
+      test.equal(err.message, that.error);
+      test.done();
+    });
+  },
+
+  // how to test that.range error?   
+
+});
 
 
 exports['get'] = nodeunit.testCase({
@@ -405,7 +565,6 @@ exports['get'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
@@ -419,6 +578,32 @@ exports['get'] = nodeunit.testCase({
   
 });
 
+exports['get error'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.model = { 'wrong:123': { name: 'wrong:123' }}
+    this.client = norq.createClient(this.model);
+    this.client.push('wrong:123', {}, function (err, res) {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'passes a redis error to callback': function (test) {
+    test.expect(1);
+    var that = this;
+    this.client.get('wrong', 123, function (err, result) {
+      test.equal(err.message, that.error);
+      test.done();
+    });
+  },
+
+});
 
 
 exports['set'] = nodeunit.testCase({
@@ -502,8 +687,42 @@ exports['set'] = nodeunit.testCase({
     });
   },
 
+  // client.set error
+
 });
 
+exports['set error'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.model = { 'wrong:123': { name: 'wrong:123' }}
+    this.client = norq.createClient(this.model);
+    this.client.push('wrong:123', {}, function (err, res) {
+      callback();
+    });
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  // not sure how to get this to throw an error in the 
+  // right place for testing. by the time we get to the redis call
+  // it will already have called back with an error elsewhere.
+  /*
+  'passes a redis error to callback': function (test) {
+    test.expect(1);
+    var that = this;
+    this.client.set('wrong:123', '', { _id: '' }, function (err, result) {
+      console.log('ERR: ' + err + ' RES: ' + result);
+      test.equal(err.message, that.error);
+      test.done();
+    });
+  },
+  */
+
+});
 
 exports['remove'] = nodeunit.testCase({
 
@@ -558,6 +777,8 @@ exports['remove'] = nodeunit.testCase({
   },
 
   // test errors
+  // multi zrem error
+  // del error
   
 });
 
