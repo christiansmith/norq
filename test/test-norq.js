@@ -89,7 +89,7 @@ exports['push'] = nodeunit.testCase({
   'requires queue to be defined in model': function (test) {
     test.expect(1);
     this.client.push('nada', {}, function (err, result) {
-      test.equal(err.message, "Queue not found.");
+      test.equal(err.message, 'Queue not found.');
       test.done();
     }); 
   },
@@ -98,7 +98,7 @@ exports['push'] = nodeunit.testCase({
   'requires data to be an object': function (test) {
     test.expect(1);
     this.client.push('work', undefined, function (err, result) {
-      test.equal(err.message, "Data must be an object."); 
+      test.equal(err.message, 'Data must be an object.'); 
       test.done();
     });  
   },
@@ -106,7 +106,7 @@ exports['push'] = nodeunit.testCase({
   'requires data to not be null': function (test) {
     test.expect(1);
     this.client.push('work', null, function (err, result) {
-       test.equal(err.message, "Data must be an object.");
+       test.equal(err.message, 'Data must be an object.');
        test.done();
     });
   },
@@ -152,7 +152,7 @@ exports['push'] = nodeunit.testCase({
     test.expect(2);
     this.client.push('work', {}, function (err, result) {
       test.equal(typeof result._id, 'string');
-      test.equal(result.status[1], "OK");
+      test.equal(result.status[1], 'OK');
       test.done();
     })
   }
@@ -177,7 +177,8 @@ exports['push error'] = nodeunit.testCase({
     var client = norq.createClient({ wrong: { name: 'wrong' }});
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       client.push('wrong', {}, function (err, result) {
-        test.equal(true, true);
+        test.equal(err.message, 
+                  'ERR Operation against a key holding the wrong kind of value');
         test.equal(result, undefined);
         test.done();
       }); 
@@ -433,14 +434,13 @@ exports['set'] = nodeunit.testCase({
   },
 
   tearDown: function (callback) {
-    
     callback();
   },
 
   'requires queue to be defined in model': function (test) {
     test.expect(1);
     this.client.set('nada', 10, {}, function (err, result) {
-      test.equal(err.message, "Queue not found.");
+      test.equal(err.message, 'Queue not found.');
       test.done();
     }); 
   },
@@ -448,7 +448,7 @@ exports['set'] = nodeunit.testCase({
   'requires data to be an object': function (test) {
     test.expect(1);
     this.client.set('work', 10, undefined, function (err, result) {
-      test.equal(err.message, "Data must be an object."); 
+      test.equal(err.message, 'Data must be an object.'); 
       test.done();
     });  
   },
@@ -456,7 +456,7 @@ exports['set'] = nodeunit.testCase({
   'requires data to not be null': function (test) {
     test.expect(1);
     this.client.set('work', 10, null, function (err, result) {
-       test.equal(err.message, "Data must be an object.");
+       test.equal(err.message, 'Data must be an object.');
        test.done();
     });
   },
@@ -464,7 +464,8 @@ exports['set'] = nodeunit.testCase({
   'requires data to have an _id property': function (test) {
     test.expect(1);
     this.client.set('work', 10, {}, function (err, result) {
-      test.equal(err.message, "Data must have an _id property that matches the id argument.");
+      test.equal(err.message, 
+                'Data must have an _id property that matches the id argument.');
       test.done();
     });
   },
@@ -472,7 +473,8 @@ exports['set'] = nodeunit.testCase({
   'requires data._id to match id argument': function (test) {
     test.expect(1);
     this.client.set('work', 10, { _id: 123 }, function (err, result) {
-      test.equal(err.message, "Data must have an _id property that matches the id argument.");
+      test.equal(err.message, 
+                 'Data must have an _id property that matches the id argument.');
       test.done();
     });
   },
@@ -583,6 +585,13 @@ exports['validation'] = nodeunit.testCase({
     callback();
   },
 
+  'is a method of NorqClient instances': function (test) {
+    test.expect(1);
+    var validation = this.client.validate('work', {});
+    test.equal(validation.valid, false);
+    test.done();
+  },
+  
   'in push passes errors to callback': function (test) {
     test.expect(3);
     this.client.push('work', { quantity: 'wrong type' }, function (err, result) {
