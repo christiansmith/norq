@@ -97,7 +97,6 @@ module.exports = {
 
   // pop        DELETE /queue/next
   'DELETE /:queue/next': function() {
-    redis.flushdb(function (err, result) {
       client.push('popper', { _id: 1234 }, function (err, result) {
         assert.response(app, 
           { url: '/popper/next', method: 'DELETE' }, 
@@ -106,9 +105,16 @@ module.exports = {
             assert.eql(JSON.parse(res.body)._id, 1234);
           });
       });
-    });
   },
 
+  'DELETE /:queue/next ERROR': function () {
+    assert.response(app,
+      { url: '/notaqueue/next', method: 'DELETE' },
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).error, 'Queue not found.');
+      });
+  }
   // size       GET /queue/stats
   // range      GET /queue?range=0,1
   // head       GET /queue?head=5

@@ -229,6 +229,14 @@ exports['pop'] = nodeunit.testCase({
     callback();
   },
 
+  'requires queue to be defined in model': function (test) {
+    test.expect(1);
+    this.client.pop('nada', function (err, result) {
+      test.equal(err.message, 'Queue not found.');
+      test.done();
+    }); 
+  },
+
   'passes value to a callback': function (test) {
     test.expect(2);
     this.client.pop('work', function (err, result) {
