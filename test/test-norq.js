@@ -330,6 +330,14 @@ exports['peek'] = nodeunit.testCase({
     });
   },
   
+  'requires queue to be defined in model': function (test) {
+    test.expect(1);
+    this.client.peek('nada', function (err, result) {
+      test.equal(err.message, 'Queue not found.');
+      test.done();
+    }); 
+  },
+
 });
 
 exports['peek error'] = nodeunit.testCase({
