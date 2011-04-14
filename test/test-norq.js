@@ -73,6 +73,80 @@ exports['createClient'] = nodeunit.testCase({
 });
 
 
+
+exports['methods taking queue as an argument'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    this.client = norq.createClient({});
+    callback();
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'require queue to be defined in the model': function (test) {
+    test.expect(10);
+
+    var test = test; 
+    var client = this.client; 
+
+    ['push', 'peek', 'pop', 'size', 'range', 
+     'head', 'tail', 'get', 'set', 'remove'].forEach(function (method) {
+      
+      var len = client[method].length;
+      var args = ['not-defined'];
+      
+      for (var i = 0; i < len - 2; i++) {
+        args.push(null);
+      };
+
+      args.push(function (err, result) {
+        test.equal(err.message, 'Queue not found.');
+      });
+
+      client[method].apply(client, args); 
+
+    });
+
+    test.done();
+  },
+  
+});
+
+
+exports['push and set methods'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);  
+    callback();
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'require their data argument to be a non null object': function (test) {
+    test.expect(4);
+  
+    function assertion (err, result) {
+      test.equal(err.message, 'Data must be an object.');
+    }
+
+    var data = 'this is not an object';
+    this.client.push('work', data, assertion);  
+    this.client.set('work', '_', data, assertion);
+
+    this.client.push('work', null, assertion);
+    this.client.set('work', '_', null, assertion);
+    
+    test.done();
+  },
+
+});
+
+
 exports['push'] = nodeunit.testCase({
 
   setUp: function (callback) {
@@ -86,22 +160,6 @@ exports['push'] = nodeunit.testCase({
     callback();
   },
 
-  'requires data to be an object': function (test) {
-    test.expect(1);
-    this.client.push('work', undefined, function (err, result) {
-      test.equal(err.message, 'Data must be an object.'); 
-      test.done();
-    });  
-  },
-
-  'requires data to not be null': function (test) {
-    test.expect(1);
-    this.client.push('work', null, function (err, result) {
-       test.equal(err.message, 'Data must be an object.');
-       test.done();
-    });
-  },
-  
   'passes data._id to callback': function (test) {
     test.expect(1);
     this.client.push('work', { _id: 'g1bb3r1sh' }, function (err, result) {
@@ -613,22 +671,6 @@ exports['set'] = nodeunit.testCase({
     callback();
   },
 
-  'requires data to be an object': function (test) {
-    test.expect(1);
-    this.client.set('work', 10, undefined, function (err, result) {
-      test.equal(err.message, 'Data must be an object.'); 
-      test.done();
-    });  
-  },
-
-  'requires data to not be null': function (test) {
-    test.expect(1);
-    this.client.set('work', 10, null, function (err, result) {
-       test.equal(err.message, 'Data must be an object.');
-       test.done();
-    });
-  },
-
   'requires data to have an _id property': function (test) {
     test.expect(1);
     this.client.set('work', 10, {}, function (err, result) {
@@ -820,49 +862,6 @@ exports['validation'] = nodeunit.testCase({
     });
   },
    
-});
-
-
-// common to all methods
-
-exports['norq client methods'] = nodeunit.testCase({
-
-  setUp: function (callback) {
-    this.client = norq.createClient({});
-    callback();
-  },
-
-  tearDown: function (callback) {
-    callback();
-  },
-
-  'require queue to be defined in the model': function (test) {
-    test.expect(10);
-
-    var test = test; 
-    var client = this.client; 
-
-    ['push', 'peek', 'pop', 'size', 'range', 
-     'head', 'tail', 'get', 'set', 'remove'].forEach(function (method) {
-      
-      var len = client[method].length;
-      var args = ['not-defined'];
-      
-      for (var i = 0; i < len - 2; i++) {
-        args.push(null);
-      };
-
-      args.push(function (err, result) {
-        test.equal(err.message, 'Queue not found.');
-      });
-
-      client[method].apply(client, args); 
-
-    });
-
-    test.done();
-  },
-  
 });
 
 
