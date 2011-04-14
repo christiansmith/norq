@@ -86,15 +86,6 @@ exports['push'] = nodeunit.testCase({
     callback();
   },
 
-  'requires queue to be defined in model': function (test) {
-    test.expect(1);
-    this.client.push('nada', {}, function (err, result) {
-      test.equal(err.message, 'Queue not found.');
-      test.done();
-    }); 
-  },
-  
-
   'requires data to be an object': function (test) {
     test.expect(1);
     this.client.push('work', undefined, function (err, result) {
@@ -583,7 +574,7 @@ exports['get error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { 'wrong:123': { name: 'wrong:123' }}
+    this.model = { 'wrong:123': { name: 'wrong:123' }, 'wrong': { name: 'wrong' }};
     this.client = norq.createClient(this.model);
     this.client.push('wrong:123', {}, function (err, res) {
       callback();
@@ -622,14 +613,6 @@ exports['set'] = nodeunit.testCase({
     callback();
   },
 
-  'requires queue to be defined in model': function (test) {
-    test.expect(1);
-    this.client.set('nada', 10, {}, function (err, result) {
-      test.equal(err.message, 'Queue not found.');
-      test.done();
-    }); 
-  },
-  
   'requires data to be an object': function (test) {
     test.expect(1);
     this.client.set('work', 10, undefined, function (err, result) {
@@ -838,3 +821,48 @@ exports['validation'] = nodeunit.testCase({
   },
    
 });
+
+
+// common to all methods
+
+exports['norq client methods'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    this.client = norq.createClient({});
+    callback();
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'require queue to be defined in the model': function (test) {
+    test.expect(10);
+
+    var test = test; 
+    var client = this.client; 
+
+    ['push', 'peek', 'pop', 'size', 'range', 
+     'head', 'tail', 'get', 'set', 'remove'].forEach(function (method) {
+      
+      var len = client[method].length;
+      var args = ['not-defined'];
+      
+      for (var i = 0; i < len - 2; i++) {
+        args.push(null);
+      };
+
+      args.push(function (err, result) {
+        test.equal(err.message, 'Queue not found.');
+      });
+
+      client[method].apply(client, args); 
+
+    });
+
+    test.done();
+  },
+  
+});
+
+
