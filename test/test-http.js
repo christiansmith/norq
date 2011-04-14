@@ -114,13 +114,38 @@ module.exports = {
       function (res) {
         assert.eql(JSON.parse(res.body).error, 'Queue not found.');
       });
-  }
-  // size       GET /queue/stats
-  // range      GET /queue?range=0,1
-  // head       GET /queue?head=5
-  // tail       GET /queue?tail=5
-  // get        GET /queue/:id
-  // set        PUT /queue/:id -d
-  // remove     DELETE /queue/:id
+  },
+
+
+  // size       GET /:queue/stats
+  // range      GET /:queue/0..-1
+  'GET /:queue/0..9': function () {
+    assert.response(app,
+      { url: '/longer/0..9' },
+      { status: 200, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body)[0]._id, 10);
+      }); 
+  },
+
+  'GET /:queue/0..9 ERROR': function() {
+    assert.response(app,
+      { url: '/notaqueue/0..4' },
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).error, 'Queue not found.');
+      });
+  },
+
+  // head       GET /:queue/100
+
+ // 'GET /:queue/head/?:len?': function(attribute) {
+    
+ // },
+
+  // tail       GET /:queue/100-
+  // get        GET /:queue/:id
+  // set        PUT /:queue/:id -d
+  // remove     DELETE /:queue/:id
 
 };
