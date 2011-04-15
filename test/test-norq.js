@@ -601,6 +601,37 @@ exports['tail error'] = nodeunit.testCase({
 
 });
 
+exports['range, head, and tail'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.model = { work: { name: 'work' }};
+    this.client = norq.createClient(this.model);
+    callback();
+  },
+
+  tearDown: function (callback) {
+    callback();
+  },
+
+  'pass an empty array to callback if the queue is empty': function (test) {
+    test.expect(6);
+
+    var counter = 0;
+
+    function assertions (err, results) {
+      counter += 1;
+      test.equal(err, null);
+      test.equal(JSON.stringify(results), JSON.stringify([]));
+      if (counter === 3) test.done();
+    }
+
+    this.client.range('work', 0, 9, assertions);
+    this.client.head('work', 100, assertions);
+    this.client.tail('work', 100, assertions);
+  },
+
+});
 
 exports['get'] = nodeunit.testCase({
 
