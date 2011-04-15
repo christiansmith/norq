@@ -137,13 +137,26 @@ module.exports = {
       });
   },
 
-  // head       GET /:queue/100
-
- // 'GET /:queue/head/?:len?': function(attribute) {
-    
- // },
+  // head       GET /:queue/+100
+  'GET /:queue/+5': function () {
+    assert.response(app,
+      { url: '/longer/+5' },
+      { status: 200, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).length, 5);
+      });
+  },
 
   // tail       GET /:queue/100-
+
+  'GET /:queue/-5': function () {
+    assert.response(app,
+      { url: '/longer/-5' },
+      { status: 200, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).length, 5);
+      });
+  },
   // get        GET /:queue/:id
   // set        PUT /:queue/:id -d
   // remove     DELETE /:queue/:id
