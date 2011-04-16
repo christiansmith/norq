@@ -86,7 +86,7 @@ exports['methods taking queue as an argument'] = nodeunit.testCase({
   },
 
   'require queue to be defined in the model': function (test) {
-    test.expect(10);
+    test.expect(20);
 
     var test = test; 
     var client = this.client; 
@@ -103,6 +103,7 @@ exports['methods taking queue as an argument'] = nodeunit.testCase({
 
       args.push(function (err, result) {
         test.equal(err.message, 'Queue not found.');
+        test.ok(err instanceof norq.QueueNotFoundError);
       });
 
       client[method].apply(client, args); 
