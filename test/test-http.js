@@ -192,4 +192,34 @@ module.exports = {
 
   // remove     DELETE /:queue/:id
 
+
+
+  // other
+  'push and set requests need application/json for Content-Type': function() {
+    assert.response(app, 
+      { url: '/pusher', 
+        method: 'POST', 
+        headers: { 'Content-Type': 'text/html' },
+        data: '{}'},
+      { status: 400 },
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 
+                   'Request Content-Type must be application/json.');
+      });
+
+    client.push('setter', '777', function (err, result) {
+      assert.response(app, 
+        { url: '/setter/777', 
+          method: 'PUT', 
+          headers: { 'Content-Type': 'text/html' },
+          data: '{ _id: 777 }'},
+        { status: 400 },
+        function (res) {
+          assert.eql(JSON.parse(res.body).message, 
+                     'Request Content-Type must be application/json.');
+        }); 
+    });
+  },
+
+
 };
