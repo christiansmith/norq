@@ -12,6 +12,8 @@ var client = norq.createClient({
   peeker: { name: 'peeker' },
   popper: { name: 'popper' },
   longer: { name: 'longer' },
+  getter: { name: 'getter' },
+  setter: { name: 'setter' }
 });
 
 function setupQueue (queue, len) {
@@ -158,7 +160,36 @@ module.exports = {
       });
   },
   // get        GET /:queue/:id
+  'GET /:queue/:id': function() {
+    var data = { _id: 333 };
+    client.push('getter', data, function (err, result) {
+      assert.response(app,
+        { url: '/getter/333' },
+        { status: 200, headers: { 'Content-Type': 'application/json' }},
+        function (res) {
+          assert.eql(res.body, JSON.stringify(data));
+        });
+    });
+  },
+
   // set        PUT /:queue/:id -d
+  'PUT /:queue/:id': function() {
+    var data = { _id: '555' },
+        updated = { _id: '555', wtf: false };
+
+    client.push('setter', data, function (err, result) {
+      assert.response(app,
+        { url: '/setter/555', 
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          data: JSON.stringify(updated) },
+        { status: 200, headers: { 'Content-Type': 'application/json' }},
+        function (res) {
+          assert.eql(res.body, JSON.stringify({ _id:'555', status: 'OK' }));
+        });      
+    });
+  },
+
   // remove     DELETE /:queue/:id
 
 };
