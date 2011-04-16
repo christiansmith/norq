@@ -129,10 +129,11 @@ exports['push and set methods'] = nodeunit.testCase({
   },
 
   'require their data argument to be a non null object': function (test) {
-    test.expect(4);
+    test.expect(8);
   
     function assertion (err, result) {
       test.equal(err.message, 'Data must be an object.');
+      test.ok(err instanceof norq.DataNotObjectError);
     }
 
     var data = 'this is not an object';
