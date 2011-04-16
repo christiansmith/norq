@@ -149,7 +149,7 @@ module.exports = {
       });
   },
 
-  // tail       GET /:queue/100-
+  // tail       GET /:queue/-100
 
   'GET /:queue/-5': function () {
     assert.response(app,
