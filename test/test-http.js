@@ -87,12 +87,12 @@ module.exports = {
     });
   },
 
-  'GET /:queue/next ERROR': function() {
+  'GET /:queue/next 404': function() {
     assert.response(app, 
       { url: '/notaqueue/next' },
       { status: 404, headers: { 'Content-Type': 'application/json' }},
       function (res) {
-        assert.eql(JSON.parse(res.body).error, 'Queue not found.');
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
       });
   },
 
@@ -109,12 +109,12 @@ module.exports = {
       });
   },
 
-  'DELETE /:queue/next ERROR': function () {
+  'DELETE /:queue/next 404': function () {
     assert.response(app,
       { url: '/notaqueue/next', method: 'DELETE' },
       { status: 404, headers: { 'Content-Type': 'application/json' }},
       function (res) {
-        assert.eql(JSON.parse(res.body).error, 'Queue not found.');
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
       });
   },
 
@@ -130,12 +130,12 @@ module.exports = {
       }); 
   },
 
-  'GET /:queue/0..9 ERROR': function() {
+  'GET /:queue/0..9 404': function() {
     assert.response(app,
       { url: '/notaqueue/0..4' },
       { status: 404, headers: { 'Content-Type': 'application/json' }},
       function (res) {
-        assert.eql(JSON.parse(res.body).error, 'Queue not found.');
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
       });
   },
 
@@ -149,6 +149,15 @@ module.exports = {
       });
   },
 
+  'GET /:queue/+5 404': function () {
+    assert.response(app, 
+      { url: '/notaqueue/+5' }, 
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
+      });
+  },
+
   // tail       GET /:queue/-100
 
   'GET /:queue/-5': function () {
@@ -159,6 +168,16 @@ module.exports = {
         assert.eql(JSON.parse(res.body).length, 5);
       });
   },
+
+  'GET /:queue/-5 404': function () {
+    assert.response(app, 
+      { url: '/notaqueue/-5' }, 
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
+      });
+  },
+
   // get        GET /:queue/:id
   'GET /:queue/:id': function() {
     var data = { _id: 333 };
@@ -171,6 +190,16 @@ module.exports = {
         });
     });
   },
+
+  'GET /:queue/:id 404': function () {
+    assert.response(app, 
+      { url: '/notaqueue/86' },
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
+      });
+  },
+
 
   // set        PUT /:queue/:id -d
   'PUT /:queue/:id': function() {
@@ -188,6 +217,18 @@ module.exports = {
           assert.eql(res.body, JSON.stringify({ _id:'555', status: 'OK' }));
         });      
     });
+  },
+
+  'PUT /:queue/:id 404': function () {
+    assert.response(app, 
+      { url: '/notaqueue/86', 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json'},
+        data: JSON.stringify({ _id: 86 })},
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
+      });
   },
 
   // remove     DELETE /:queue/:id
