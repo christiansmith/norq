@@ -60,7 +60,19 @@ module.exports = {
       });
   },
   
-  'POST /:queue ERROR': function() {
+  'POST /:queue 404': function() {
+    assert.response(app, 
+      { url: '/notaqueue', 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: JSON.stringify({ description: 'about', quantity: 123 }) },
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
+      });
+  },
+
+  'POST /:queue 400': function() {
     assert.response(app, 
       { url: '/pusher', 
         method: 'POST',
@@ -68,7 +80,7 @@ module.exports = {
         data: '1234' },
       { status: 400, headers: { 'Content-Type': 'application/json' }},
       function (res) {
-        assert.eql(JSON.parse(res.body).error, "Data must be an object.");
+        assert.eql(JSON.parse(res.body).message, "Data must be an object.");
       });
   },
 
