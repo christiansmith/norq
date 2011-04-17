@@ -705,8 +705,9 @@ exports['set'] = nodeunit.testCase({
   },
 
   'requires data to have an _id property': function (test) {
-    test.expect(1);
+    test.expect(2);
     this.client.set('work', 10, {}, function (err, result) {
+      test.ok(err instanceof norq.InvalidIdError);
       test.equal(err.message, 
                 'Data must have an _id property that matches the id argument.');
       test.done();
