@@ -30,6 +30,7 @@ setupQueue('longer', 10);
 
 module.exports = {
 
+  // info       GET /
   'GET /': function() {
     assert.response(app, 
       { url: '/' }, 
@@ -39,14 +40,25 @@ module.exports = {
       });
   },
 
-  
-
-
-  // test cases
-  // model
-  // config?
-  // info       GET /
   // info       GET /queue
+  'GET /:queue': function () {
+    assert.response(app, 
+      { url: '/longer' },
+      { status: 200, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(res.body, JSON.stringify(client.model['longer']));
+      });
+  },
+
+  'GET /:queue 404': function () {
+    assert.response(app, 
+      { url: '/notaqueue' },
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.includes(res.body, 'Queue not found.');
+      });
+  },
+
   // push       POST /queue
   'POST /:queue': function() {
     assert.response(app, 
@@ -84,7 +96,6 @@ module.exports = {
       });
   },
 
-
   // peek       GET /queue/next
   'GET /:queue/next': function() {
     redis.flushdb(function (err, result) {
@@ -108,7 +119,6 @@ module.exports = {
       });
   },
 
-
   // pop        DELETE /queue/next
   'DELETE /:queue/next': function() {
       client.push('popper', { _id: 1234 }, function (err, result) {
@@ -129,7 +139,6 @@ module.exports = {
         assert.eql(JSON.parse(res.body).message, 'Queue not found.');
       });
   },
-
 
   // size       GET /:queue/stats
   // range      GET /:queue/0..-1
@@ -212,7 +221,6 @@ module.exports = {
       });
   },
 
-
   // set        PUT /:queue/:id -d
   'PUT /:queue/:id': function() {
     var data = { _id: '555' },
@@ -271,8 +279,6 @@ module.exports = {
       });
   },
 
-
-
   // other
   'push and set requests need application/json for Content-Type': function() {
     assert.response(app, 
@@ -299,6 +305,5 @@ module.exports = {
         }); 
     });
   },
-
 
 };
