@@ -244,6 +244,32 @@ module.exports = {
   },
 
   // remove     DELETE /:queue/:id
+  'DELETE /:queue/:id': function() {
+    var data = { _id: 'deleteme' };
+
+    client.push('setter', data, function (err, result) {
+      assert.response(app,
+        { url: '/setter/deleteme', 
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }},
+        { status: 200, headers: { 'Content-Type': 'application/json' }},
+        function (res) {
+          assert.eql(res.body, JSON.stringify({ _id:'deleteme', deleted: true }));
+        });      
+
+    });
+  },
+
+  'DELETE /:queue/:id 404': function () {
+    assert.response(app, 
+      { url: '/notaqueue/86', 
+        method: 'DELETE', 
+        headers: { 'Content-Type': 'application/json'}},
+      { status: 404, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
+      });
+  },
 
 
 
