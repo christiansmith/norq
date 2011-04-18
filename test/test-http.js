@@ -7,7 +7,11 @@ var app = require('../lib/http'),
     assert = require('assert'),
     redis = require('redis').createClient();
 
-var client = norq.createClient({ 
+/**
+ * Define a model for testing purposes.
+ */
+
+var test_model = { 
   pusher: { name: 'pusher' },
   peeker: { name: 'peeker' },
   popper: { name: 'popper' },
@@ -24,7 +28,23 @@ var client = norq.createClient({
       }
     }
   }
-});
+};
+
+/**
+ * Create a NorqClient for use in tests.
+ */
+
+var client = norq.createClient(test_model);
+
+/**
+ * Override the model in app.norq_client for testing.
+ */
+
+app.norq_client.model = test_model;
+
+/**
+ * Add some items to a queue for testing range, head and tail.
+ */
 
 function setupQueue (queue, len) {
   if (len > 0) {
@@ -37,6 +57,10 @@ function setupQueue (queue, len) {
 };
 
 setupQueue('longer', 10);
+
+/**
+ * Tests
+ */
 
 module.exports = {
 
@@ -155,7 +179,6 @@ module.exports = {
 
   'DELETE /:queue/:id': function() {
     var data = { _id: 'deleteme' };
-
     client.push('setter', data, function (err, result) {
       assert.response(app,
         { url: '/setter/deleteme', 
