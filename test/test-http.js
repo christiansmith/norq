@@ -13,7 +13,17 @@ var client = norq.createClient({
   popper: { name: 'popper' },
   longer: { name: 'longer' },
   getter: { name: 'getter' },
-  setter: { name: 'setter' }
+  setter: { name: 'setter' },
+  validator: { 
+    name: 'validator', 
+    schema: { 
+      type: 'object',
+      properties: {
+        description: { type: 'String' },
+        quantity: { type: 'Number' }
+      }
+    }
+  }
 });
 
 function setupQueue (queue, len) {
@@ -155,7 +165,6 @@ module.exports = {
         function (res) {
           assert.eql(res.body, JSON.stringify({ _id:'deleteme', deleted: true }));
         });      
-
     });
   },
 
@@ -170,7 +179,6 @@ module.exports = {
         method: 'PUT', 
         headers: { 'Content-Type': 'text/html' },
         data: '{ _id: 777 }'} 
-    
     ];
  
     function assertion (res) {
@@ -195,7 +203,6 @@ module.exports = {
         method: 'PUT', 
         headers: { 'Content-Type': 'application/json' },
         data: '1234'} 
-    
     ];
  
     function assertion (res) {
@@ -219,6 +226,34 @@ module.exports = {
         assert.eql(JSON.parse(res.body).message, 
                    'Data must have an _id property that matches the id argument.');
       });
+  },
+
+  '400 Bad Request Errors = JSONInvalidError': function () {
+    var invalid_data = JSON.stringify({ _id: 456, description: {} });
+
+    var requests = [
+      { url: '/validator', 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        data: invalid_data },
+
+      { url: '/validator/456', 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' },
+        data: invalid_data } 
+    ];
+ 
+    function assertion (res) {
+      assert.eql(JSON.parse(res.body).message[0].message, 
+                            'object value found, but a String is required');
+      assert.eql(JSON.parse(res.body).message[1].message, 
+                            'is missing and it is not optional');
+    }
+    
+    requests.forEach(function (req) {
+      assert.response(app,
+        req, { status: 400, headers: { 'Content-Type': 'application/json' }}, assertion);
+    });
   },
 
   '404 Not Found Errors - QueueNotFoundError': function () {
