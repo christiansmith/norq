@@ -30,7 +30,6 @@ setupQueue('longer', 10);
 
 module.exports = {
 
-  // info       GET /
   'GET /': function() {
     assert.response(app, 
       { url: '/' }, 
@@ -40,7 +39,6 @@ module.exports = {
       });
   },
 
-  // info       GET /queue
   'GET /:queue': function () {
     assert.response(app, 
       { url: '/longer' },
@@ -50,7 +48,6 @@ module.exports = {
       });
   },
 
-  // push       POST /queue
   'POST /:queue': function() {
     assert.response(app, 
       { url: '/pusher', 
@@ -63,7 +60,6 @@ module.exports = {
       });
   },
 
-  // peek       GET /queue/next
   'GET /:queue/next': function() {
     redis.flushdb(function (err, result) {
       client.push('peeker', { _id: 123 }, function (err, result) {
@@ -77,7 +73,6 @@ module.exports = {
     });
   },
 
-  // pop        DELETE /queue/next
   'DELETE /:queue/next': function() {
       client.push('popper', { _id: 1234 }, function (err, result) {
         assert.response(app, 
@@ -90,7 +85,8 @@ module.exports = {
   },
 
   // size       GET /:queue/stats
-  // range      GET /:queue/0..-1
+  
+
   'GET /:queue/0..9': function () {
     assert.response(app,
       { url: '/longer/0..9' },
@@ -100,7 +96,6 @@ module.exports = {
       }); 
   },
 
-  // head       GET /:queue/+100
   'GET /:queue/+5': function () {
     assert.response(app,
       { url: '/longer/+5' },
@@ -109,8 +104,6 @@ module.exports = {
         assert.eql(JSON.parse(res.body).length, 5);
       });
   },
-
-  // tail       GET /:queue/-100
 
   'GET /:queue/-5': function () {
     assert.response(app,
@@ -121,7 +114,6 @@ module.exports = {
       });
   },
 
-  // get        GET /:queue/:id
   'GET /:queue/:id': function() {
     var data = { _id: 333 };
     client.push('getter', data, function (err, result) {
@@ -134,7 +126,6 @@ module.exports = {
     });
   },
 
-  // set        PUT /:queue/:id -d
   'PUT /:queue/:id': function() {
     var data = { _id: '555' },
         updated = { _id: '555', wtf: false };
@@ -152,7 +143,6 @@ module.exports = {
     });
   },
 
-  // remove     DELETE /:queue/:id
   'DELETE /:queue/:id': function() {
     var data = { _id: 'deleteme' };
 
@@ -216,6 +206,19 @@ module.exports = {
       assert.response(app,
         req, { status: 400, headers: { 'Content-Type': 'application/json' }}, assertion);
     });
+  },
+
+  '400 Bad Request Error - InvalidIdError': function () {
+    assert.response(app,
+      { url: '/setter/789',
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        data: '{ "_id": 123 }'},
+      { status: 400, headers: { 'Content-Type': 'application/json' }},
+      function (res) {
+        assert.eql(JSON.parse(res.body).message, 
+                   'Data must have an _id property that matches the id argument.');
+      });
   },
 
   '404 Not Found Errors - QueueNotFoundError': function () {
