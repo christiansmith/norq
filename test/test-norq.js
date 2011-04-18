@@ -876,8 +876,8 @@ exports['validation'] = nodeunit.testCase({
     test.expect(3);
     this.client.push('work', { quantity: 'wrong type' }, function (err, result) {
       test.equal(result, undefined);
-      test.equal(err[0].message, 'is missing and it is not optional');
-      test.equal(err[1].message, 'string value found, but a number is required');
+      test.equal(err.message[0].message, 'is missing and it is not optional');
+      test.equal(err.message[1].message, 'string value found, but a number is required');
       test.done();
     }); 
   },
@@ -889,13 +889,11 @@ exports['validation'] = nodeunit.testCase({
     client.push('work', data, function (err, result) {
       client.set('work', result._id, { quantity: 'wrong type' }, function (err, result) {
         test.equal(result, undefined);
-        test.equal(err[0].message, 'is missing and it is not optional');
-        test.equal(err[1].message, 'string value found, but a number is required');
+        test.equal(err.message[0].message, 'is missing and it is not optional');
+        test.equal(err.message[1].message, 'string value found, but a number is required');
         test.done();
       }); 
     });
   },
    
 });
-
-
