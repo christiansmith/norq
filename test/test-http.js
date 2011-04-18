@@ -50,15 +50,6 @@ module.exports = {
       });
   },
 
-  'GET /:queue 404': function () {
-    assert.response(app, 
-      { url: '/notaqueue' },
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.includes(res.body, 'Queue not found.');
-      });
-  },
-
   // push       POST /queue
   'POST /:queue': function() {
     assert.response(app, 
@@ -69,30 +60,6 @@ module.exports = {
       { status: 201, headers: { 'Content-Type': 'application/json' }},
       function (res) {
         assert.eql(JSON.parse(res.body).status, [1, "OK"]);
-      });
-  },
-  
-  'POST /:queue 404': function() {
-    assert.response(app, 
-      { url: '/notaqueue', 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: JSON.stringify({ description: 'about', quantity: 123 }) },
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
-      });
-  },
-
-  'POST /:queue 400': function() {
-    assert.response(app, 
-      { url: '/pusher', 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: '1234' },
-      { status: 400, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, "Data must be an object.");
       });
   },
 
@@ -110,15 +77,6 @@ module.exports = {
     });
   },
 
-  'GET /:queue/next 404': function() {
-    assert.response(app, 
-      { url: '/notaqueue/next' },
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
-      });
-  },
-
   // pop        DELETE /queue/next
   'DELETE /:queue/next': function() {
       client.push('popper', { _id: 1234 }, function (err, result) {
@@ -128,15 +86,6 @@ module.exports = {
           function (res) {
             assert.eql(JSON.parse(res.body)._id, 1234);
           });
-      });
-  },
-
-  'DELETE /:queue/next 404': function () {
-    assert.response(app,
-      { url: '/notaqueue/next', method: 'DELETE' },
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
       });
   },
 
@@ -151,15 +100,6 @@ module.exports = {
       }); 
   },
 
-  'GET /:queue/0..9 404': function() {
-    assert.response(app,
-      { url: '/notaqueue/0..4' },
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
-      });
-  },
-
   // head       GET /:queue/+100
   'GET /:queue/+5': function () {
     assert.response(app,
@@ -167,15 +107,6 @@ module.exports = {
       { status: 200, headers: { 'Content-Type': 'application/json' }},
       function (res) {
         assert.eql(JSON.parse(res.body).length, 5);
-      });
-  },
-
-  'GET /:queue/+5 404': function () {
-    assert.response(app, 
-      { url: '/notaqueue/+5' }, 
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
       });
   },
 
@@ -190,15 +121,6 @@ module.exports = {
       });
   },
 
-  'GET /:queue/-5 404': function () {
-    assert.response(app, 
-      { url: '/notaqueue/-5' }, 
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
-      });
-  },
-
   // get        GET /:queue/:id
   'GET /:queue/:id': function() {
     var data = { _id: 333 };
@@ -210,15 +132,6 @@ module.exports = {
           assert.eql(res.body, JSON.stringify(data));
         });
     });
-  },
-
-  'GET /:queue/:id 404': function () {
-    assert.response(app, 
-      { url: '/notaqueue/86' },
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
-      });
   },
 
   // set        PUT /:queue/:id -d
@@ -239,18 +152,6 @@ module.exports = {
     });
   },
 
-  'PUT /:queue/:id 404': function () {
-    assert.response(app, 
-      { url: '/notaqueue/86', 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json'},
-        data: JSON.stringify({ _id: 86 })},
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
-      });
-  },
-
   // remove     DELETE /:queue/:id
   'DELETE /:queue/:id': function() {
     var data = { _id: 'deleteme' };
@@ -268,42 +169,109 @@ module.exports = {
     });
   },
 
-  'DELETE /:queue/:id 404': function () {
-    assert.response(app, 
-      { url: '/notaqueue/86', 
-        method: 'DELETE', 
-        headers: { 'Content-Type': 'application/json'}},
-      { status: 404, headers: { 'Content-Type': 'application/json' }},
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 'Queue not found.');
-      });
-  },
-
-  // other
-  'push and set requests need application/json for Content-Type': function() {
-    assert.response(app, 
+  '400 Bad Request Errors - ContentTypeNotJSONError': function() {
+    var requests = [
       { url: '/pusher', 
         method: 'POST', 
         headers: { 'Content-Type': 'text/html' },
         data: '{}'},
-      { status: 400 },
-      function (res) {
-        assert.eql(JSON.parse(res.body).message, 
-                   'Request Content-Type must be application/json.');
-      });
 
-    client.push('setter', '777', function (err, result) {
-      assert.response(app, 
-        { url: '/setter/777', 
-          method: 'PUT', 
-          headers: { 'Content-Type': 'text/html' },
-          data: '{ _id: 777 }'},
-        { status: 400 },
-        function (res) {
-          assert.eql(JSON.parse(res.body).message, 
-                     'Request Content-Type must be application/json.');
-        }); 
+      { url: '/setter/777', 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'text/html' },
+        data: '{ _id: 777 }'} 
+    
+    ];
+ 
+    function assertion (res) {
+      assert.eql(JSON.parse(res.body).message, 
+                 'Request Content-Type must be application/json.');
+    }
+    
+    requests.forEach(function (req) {
+      assert.response(app,
+        req, { status: 400, headers: { 'Content-Type': 'application/json' }}, assertion);
     });
   },
+
+  '400 Bad Request Errors - DataNotObjectError': function() {
+    var requests = [
+      { url: '/pusher', 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        data: '1234'},
+
+      { url: '/setter/777', 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' },
+        data: '1234'} 
+    
+    ];
+ 
+    function assertion (res) {
+      assert.eql(JSON.parse(res.body).message, 'Data must be an object.');
+    }
+    
+    requests.forEach(function (req) {
+      assert.response(app,
+        req, { status: 400, headers: { 'Content-Type': 'application/json' }}, assertion);
+    });
+  },
+
+  '404 Not Found Errors - QueueNotFoundError': function () {
+    var requests = [
+      { url: '/undefined', 
+        method: 'GET', 
+        headers: { 'Content-Type': 'application/json' }},
+      
+      { url: '/undefined', 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        data: '{}'},
+      
+      { url: '/undefined/next', 
+        method: 'GET', 
+        headers: { 'Content-Type': 'application/json' }},
+      
+      { url: '/undefined/next', 
+        method: 'DELETE', 
+        headers: { 'Content-Type': 'application/json' }},
+      
+      { url: '/undefined/0..9', 
+        method: 'GET', 
+        headers: { 'Content-Type': 'application/json' }},
+      
+      { url: '/undefined/+100', 
+        method: 'GET', 
+        headers: { 'Content-Type': 'application/json' }},
+      
+      { url: '/undefined/-100', 
+        method: 'GET', 
+        headers: { 'Content-Type': 'application/json' }},
+      
+      { url: '/undefined/uuid', 
+        method: 'GET', 
+        headers: { 'Content-Type': 'application/json' }},
+      
+      { url: '/undefined/uuid', 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' },
+        data: '{}'},
+      
+      { url: '/undefined/uuid', 
+        method: 'DELETE', 
+        headers: { 'Content-Type': 'application/json' }}
+    ];
+
+    function assertion (res) {
+      assert.eql(JSON.parse(res.body).message, 'Queue not found.');
+    }
+  
+    requests.forEach(function (req) {
+      assert.response(app,
+        req, { status: 404, headers: { 'Content-Type': 'application/json' }}, assertion);
+    });
+
+  }
 
 };
