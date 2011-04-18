@@ -279,6 +279,32 @@ module.exports = {
     });
   },
 
+  '400 Bad Request Errors = SyntaxError': function () {
+    var invalid_json = '{ description: {} }';
+
+    var requests = [
+      { url: '/validator', 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        data: invalid_json },
+
+      { url: '/validator/456', 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' },
+        data: invalid_json } 
+    ];
+ 
+    function assertion (res) {
+      assert.eql(JSON.parse(res.body).message, 'Unexpected token ILLEGAL');
+    }
+    
+    requests.forEach(function (req) {
+      assert.response(app,
+        req, { status: 400, headers: { 'Content-Type': 'application/json' }}, assertion);
+    });
+  },
+
+
   '404 Not Found Errors - QueueNotFoundError': function () {
     var requests = [
       { url: '/undefined', 
