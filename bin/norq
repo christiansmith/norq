@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependecies.
+ */
+
+var norq = require('norq')
+  , repl = require('repl')
+  , fs = require('fs')
+  , exec = require('child_process').exec;
+
+/**
+ * Norq Version
+ */
+
+var version = '0.0.0';
+
+/**
+ * Norq Help
+ */
+
+var help = 'RTFM';
+
+/**
+ * Temporary config
+ */
+
+var default_redis = { host: '127.0.0.1', port: '6379'};
+var default_model = { work: { name: 'work' }};
+
+/**
+ * Argument Aliases
+ */
+
+var aliases = { 
+  '-h': 'help',
+  '--help': 'help',
+  '-v': 'version',
+  '--version': 'version'
+};
+
+/**
+ * Get args and replace aliases
+ */
+
+var args = process.argv.slice(2).map(function (arg) {
+  return aliases[arg] || arg;
+});
+
+/**
+ * The first arg is a command which stands alone or 
+ * determines the meaning of other args
+ */
+
+var command = args.shift();
+
+switch (command) {
+  case 'version':
+    console.log(version);
+    process.exit(1);
+    break;
+
+  case 'help':
+    console.log(help);
+    process.exit(1);
+    break;
+
+  case 'http':
+    norq.server.listen(5150);
+    console.log('Norq HTTP server listening on port %d', norq.server.address().port);
+    break;
+
+  case 'repl':
+    // still need to get the model/etc from cwd/config
+    // also need to "exit on exit"? and add a line break in the shell
+    var context = repl.start('norq> ').context;
+    context.norq = norq;
+    context.client = norq.createClient({ work: { name: 'work' }});
+    break;
+
+  case 'init':
+    // check for existing files first
+    initialize_project();
+    break;
+
+  default:
+    var client = norq.createClient(default_model);
+    var operation = client[command];
+    if (operation) {
+      args.push(print);
+      operation.apply(client, args);
+    } else {
+      console.log('Ich weiss es nicht!');  
+      process.exit(1);
+    }
+    break;
+}
+
+function initialize_project () {
+  exec('mkdir config', function (err) {
+    fs.writeFile('./config/redis.json', JSON.stringify(default_redis));
+    fs.writeFile('./config/model.json', JSON.stringify(default_model));
+    exec('mkdir log', function (err) {
+      process.exit(1);
+    });
+  });
+}
+
+function print(err, result) {
+  if (err) {
+    console.log(err.message);
+  } else {
+    console.log(result);  
+  }  
+  process.exit(1);
+}
+
