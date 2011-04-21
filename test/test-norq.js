@@ -121,7 +121,10 @@ exports['push and set methods'] = nodeunit.testCase({
   setUp: function (callback) {
     this.model = { work: { name: 'work' }};
     this.client = norq.createClient(this.model);  
-    callback();
+    this.client.push('work', { _id: 'setfromstring' }, function () {
+      callback();  
+    });
+    // callback();
   },
 
   tearDown: function (callback) {
@@ -144,6 +147,26 @@ exports['push and set methods'] = nodeunit.testCase({
     this.client.set('work', '_', null, assertion);
     
     test.done();
+  },
+
+  'will attempt to parse JSON string': function (test) {
+    test.expect(4);
+    
+    var counter = 0;
+
+    function assertion (err, result) {
+      counter += 1;
+      console.log(result);
+      test.ok(!err);
+      test.ok(result !== undefined);
+      if (counter === 2) test.done();
+    }
+
+    var data = JSON.stringify({ _id: 'fromstring' });
+    this.client.push('work', data, assertion);
+
+    this.client.set('work', 'setfromstring', 
+                     JSON.stringify({ _id: 'setfromstring', k: 'v' }), assertion);
   },
 
 });
