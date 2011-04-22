@@ -156,7 +156,6 @@ exports['push and set methods'] = nodeunit.testCase({
 
     function assertion (err, result) {
       counter += 1;
-      console.log(result);
       test.ok(!err);
       test.ok(result !== undefined);
       if (counter === 2) test.done();
@@ -278,10 +277,10 @@ exports['push error'] = nodeunit.testCase({
 function setupQueue(client, queue, len, callback) {
   if (len > 0) {
     client.push(queue, { _id: len }, function (err, result) {
-       // wait a few milliseconds to guarantee the order
-       // this is not happening
-       // wtf?
-       setTimeout(setupQueue(client, queue, len - 1, callback), 100000);
+      // wait a few milliseconds to guarantee the order
+      setTimeout(function (client, queue, len, callback) {
+         setupQueue(client, queue, len, callback);
+      }, 1, client, queue, len - 1, callback);
     });
   } else {
     callback();
