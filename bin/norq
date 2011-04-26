@@ -23,16 +23,22 @@ var help = 'RTFM';
 
 /**
  * Default config
+ * 
+ * Is there a concise way to merge norq.config with defaults? 
+ * JS is great but I'm sometimes missing Clojure...
  */
 
 var defaults = {
-  name: 'default',
-  redis: { host: '127.0.0.1', port: 6379 },
-  http: { port: 5150 },
-  model: {
-    default: {
-      name: 'default',
-      options: {}
+    name: 'default'
+  , redis: { host: '127.0.0.1', port: 6379 }
+  , http: { port: 5150 }
+  , logs: [ 'Console'
+          , { transport: 'File'
+            , options: { filename: 'logs/http.log' }}]
+  , model: {
+      default: {
+        name: 'default'
+      , options: {}
     }  
   }
 }
@@ -75,13 +81,23 @@ switch (command) {
     break;
 
   case 'http':
+    // have to insert logger before the router; this is kind of ugly
+    norq.server.stack.splice(2, 0, 
+                            { route: '', 
+                              handle: norq.logger(defaults) });
     norq.server.norq_client.model = norq.config.model;
+
+    // instead of the above, I want to be able to just write
+    // var server = norq.createServer(norq.config);
+    // server.listen(); // where port is already derived internally from config
+
     norq.server.listen(5150);
     console.log('Norq HTTP server listening on port %d', norq.server.address().port);
     break;
 
   case 'repl':
     // need to "exit on exit"? and add a line break in the shell
+    // process.on('exit', ...) doesn't work directly?
     var context = repl.start('norq> ').context;
     context.norq = norq;
     context.client = norq.createClient(norq.config.model);
@@ -95,6 +111,9 @@ switch (command) {
     break;
 
   default:
+    // next line should eventually just be
+    // var client = norq.createClient(config);
+
     var client = norq.createClient(norq.config.model);
     var operation = client[command];
     if (operation) {

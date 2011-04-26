@@ -2,6 +2,7 @@ var fs = require('fs');
 
 module.exports = require('./lib/norq');
 module.exports.server = require('./lib/http');
+module.exports.logger = require('./lib/logger').logger;
 
 module.exports.config = (function (path) {
   try {
