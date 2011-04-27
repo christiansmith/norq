@@ -868,6 +868,82 @@ exports['remove'] = nodeunit.testCase({
   
 });
 
+exports['flush all'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.client = norq.createClient(test_config);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  'flushes the Redis database': function (test) {
+    test.expect(2);
+    this.client.flush('all', function (err, result) {
+      test.ok(result);
+      redis_client.dbsize(function (err, size) {
+        test.equal(size, 0);
+        test.done();
+      });
+    });
+    
+  },
+
+});
+
+exports['flush queue'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.client = norq.createClient(test_config);
+    this.client.model.more = { name: 'more' };
+  
+    var client = this.client;
+    setupQueue(client, 'work', 10, function () {
+      setupQueue(client, 'more', 10, function () {
+        callback();
+      });
+    });
+  },
+
+  'deletes the keys in the queue': function (test) {
+    test.expect(2);
+    var client = this.client;
+    client.flush('work', function (err, flushed) {
+      test.ok(flushed);
+      client.get('work', '10', function (err, result) {
+        test.equal(result, null);
+        test.done();
+      })
+    });
+  },
+
+  'deletes the sorted set': function (test) {
+    test.expect(2);
+    var client = this.client;
+    client.flush('work', function (err, flushed) {
+      test.ok(flushed);
+      redis_client.exists('work', function (err, exists) {
+        test.equal(exists, 0);
+        test.done();
+      }); 
+    });
+  },
+
+  'leaves other queues intact': function (test) {
+    test.expect(2);
+    var client = this.client;
+    client.flush('work', function (err, flushed) {
+      test.ok(flushed);
+      redis_client.exists('more', function (err, exists) {
+        test.equal(exists, 1);
+        test.done();
+      }); 
+    });
+  },
+
+});
 
 exports['validation'] = nodeunit.testCase({
 

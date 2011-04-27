@@ -89,6 +89,7 @@ For more information on json-schema see: [link]
     var norq = require('norq')
       , client = norq.createClient({...});
 
+    // norq client methods take a callback as their last argument
     client.push('queue-name', {...}, function (err, result) {
       // do your thing 
     });
