@@ -42,7 +42,7 @@ var version = '0.0.0';
  * Norq Help
  */
 
-var help = 'RTFM';
+var help = 'RTFS';
 
 /**
  * Argument Aliases
