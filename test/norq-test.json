@@ -1,0 +1,25 @@
+{
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "options": {}
+  },
+  "http": {
+    "port": 5150
+  },
+  "logs": [
+    "Console",
+    {
+      "transport": "File",
+      "options": {
+        "filename": "logs/http.log"
+      }
+    }
+  ],
+  "model": {
+    "work": {
+      "name": "work",
+      "schema": { "type": "object" }
+    }
+  }
+}
