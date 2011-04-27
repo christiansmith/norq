@@ -3,6 +3,10 @@ var nodeunit = require('nodeunit'),
     redis = require('redis'),
     redis_client = redis.createClient();
 
+var test_config = { 
+    model: { work: { name: 'work' }}
+  , redis: {}
+};
 
 exports['norq client object'] = nodeunit.testCase({
 
@@ -54,9 +58,7 @@ exports['norq client object'] = nodeunit.testCase({
 exports['createClient'] = nodeunit.testCase({
 
   setUp: function (callback) {
-    this.model = { work: { name: 'work' }};
-    this.config = {};
-    this.client = norq.createClient(this.model, this.config);  
+    this.client = norq.createClient(test_config);  
     callback();
   },
 
@@ -119,12 +121,10 @@ exports['methods taking queue as an argument'] = nodeunit.testCase({
 exports['push and set methods'] = nodeunit.testCase({
 
   setUp: function (callback) {
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);  
+    this.client = norq.createClient(test_config);  
     this.client.push('work', { _id: 'setfromstring' }, function () {
       callback();  
     });
-    // callback();
   },
 
   tearDown: function (callback) {
@@ -175,8 +175,7 @@ exports['push'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);  
+    this.client = norq.createClient(test_config);  
     callback();
   },
 
@@ -237,7 +236,7 @@ exports['push error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.client = norq.createClient({ wrong: { name: 'wrong' }});
+    this.client = norq.createClient({ model: { wrong: { name: 'wrong' }}});
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
     });
@@ -291,8 +290,7 @@ exports['pop'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -363,8 +361,8 @@ exports['pop error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { wrong: { name: 'wrong' }}
-    this.client = norq.createClient(this.model);
+    this.config= { model: { wrong: { name: 'wrong' }}};
+    this.client = norq.createClient(this.config);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
     });
@@ -392,8 +390,7 @@ exports['peek'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -426,8 +423,8 @@ exports['peek error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { wrong: { name: 'wrong' }}
-    this.client = norq.createClient(this.model);
+    this.config= { model: { wrong: { name: 'wrong' }}};
+    this.client = norq.createClient(this.config);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
     });
@@ -453,8 +450,7 @@ exports['size'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -480,8 +476,8 @@ exports['size error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { wrong: { name: 'wrong' }}
-    this.client = norq.createClient(this.model);
+    this.config= { model: { wrong: { name: 'wrong' }}};
+    this.client = norq.createClient(this.config);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
     });
@@ -508,8 +504,7 @@ exports['range'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -535,8 +530,8 @@ exports['range error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { wrong: { name: 'wrong' }}
-    this.client = norq.createClient(this.model);
+    this.config= { model: { wrong: { name: 'wrong' }}};
+    this.client = norq.createClient(this.config);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
     });
@@ -563,8 +558,7 @@ exports['head'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -589,8 +583,7 @@ exports['tail'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -616,8 +609,8 @@ exports['tail error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { wrong: { name: 'wrong' }}
-    this.client = norq.createClient(this.model);
+    this.config= { model: { wrong: { name: 'wrong' }}};
+    this.client = norq.createClient(this.config);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
     });
@@ -645,8 +638,7 @@ exports['range, head, and tail'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     callback();
   },
 
@@ -677,8 +669,7 @@ exports['get'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -703,8 +694,8 @@ exports['get error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { 'wrong:123': { name: 'wrong:123' }, 'wrong': { name: 'wrong' }};
-    this.client = norq.createClient(this.model);
+    this.config= { model: { 'wrong:123': { name: 'wrong:123' }, 'wrong': { name: 'wrong' }}};
+    this.client = norq.createClient(this.config);
     this.client.push('wrong:123', {}, function (err, res) {
       callback();
     });
@@ -730,8 +721,7 @@ exports['set'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     this.update = { _id: 10, update: 'some value' };
     setupQueue(this.client, 'work', 10, function () {
       callback();
@@ -793,8 +783,8 @@ exports['set error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.model = { 'wrong:123': { name: 'wrong:123' }}
-    this.client = norq.createClient(this.model);
+    this.config = { model: { 'wrong:123': { name: 'wrong:123' }}};
+    this.client = norq.createClient(this.config);
     this.client.push('wrong:123', {}, function (err, res) {
       callback();
     });
@@ -825,8 +815,7 @@ exports['remove'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model = { work: { name: 'work' }};
-    this.client = norq.createClient(this.model);
+    this.client = norq.createClient(test_config);
     setupQueue(this.client, 'work', 10, function () {
       callback();
     });
@@ -884,18 +873,21 @@ exports['validation'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.model_with_schema = { 
-      work: { 
-        name: 'work', 
-        schema: { type: 'object',
-                  properties: {
-                    description: { type: 'string' },
-                    quantity: { type: 'number' }
-                  }
-                } 
-              }
+    this.config = { 
+      model: {
+        work: { 
+          name: 'work'
+        , schema: { 
+            type: 'object'
+          , properties: {
+              description: { type: 'string' }
+            , quantity: { type: 'number' }
             }
-    this.client = norq.createClient(this.model_with_schema);
+          } 
+        }
+      }
+    }
+    this.client = norq.createClient(this.config);
     callback();
   },
 

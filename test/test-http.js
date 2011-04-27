@@ -11,36 +11,38 @@ var app = require('../lib/http'),
  * Define a model for testing purposes.
  */
 
-var test_model = { 
-  pusher: { name: 'pusher' },
-  peeker: { name: 'peeker' },
-  popper: { name: 'popper' },
-  longer: { name: 'longer' },
-  getter: { name: 'getter' },
-  setter: { name: 'setter' },
-  validator: { 
-    name: 'validator', 
-    schema: { 
-      type: 'object',
-      properties: {
-        description: { type: 'String' },
-        quantity: { type: 'Number' }
-      }
+var test_config = {
+    model: {
+      pusher: { name: 'pusher' }
+    , peeker: { name: 'peeker' }
+    , popper: { name: 'popper' }
+    , longer: { name: 'longer' }
+    , getter: { name: 'getter' }
+    , setter: { name: 'setter' }
+    , validator: { 
+        name: 'validator' 
+      , schema: { 
+          type: 'object'
+        , properties: {
+            description: { type: 'String' }
+          , quantity: { type: 'Number' }
+          }
+        }
+      }        
     }
-  }
 };
 
 /**
  * Create a NorqClient for use in tests.
  */
 
-var client = norq.createClient(test_model);
+var client = norq.createClient(test_config);
 
 /**
  * Override the model in app.norq_client for testing.
  */
 
-app.norq_client.model = test_model;
+app.norq_client.model = test_config.model;
 
 /**
  * Add some items to a queue for testing range, head and tail.

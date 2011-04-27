@@ -100,7 +100,7 @@ switch (command) {
     // process.on('exit', ...) doesn't work directly?
     var context = repl.start('norq> ').context;
     context.norq = norq;
-    context.client = norq.createClient(norq.config.model);
+    context.client = norq.createClient(norq.config);
     break;
 
   case 'init':
@@ -114,7 +114,7 @@ switch (command) {
     // next line should eventually just be
     // var client = norq.createClient(config);
 
-    var client = norq.createClient(norq.config.model);
+    var client = norq.createClient(norq.config);
     var operation = client[command];
     if (operation) {
       args.push(function (err, result) { 
