@@ -1,11 +1,18 @@
 #!/usr/bin/env node
 
+/*
+ * Norq 
+ * Copyright(c) 2011 Christian Smith <smith@anvil.io>
+ * MIT Licensed
+ */
+
 /**
  * Module dependecies.
  */
 
 var norq = require('norq')
   , repl = require('repl')
+  , util = require('util')
   , fs = require('fs')
   , exec = require('child_process').exec;
 
@@ -20,28 +27,6 @@ var version = '0.0.0';
  */
 
 var help = 'RTFM';
-
-/**
- * Default config
- * 
- * Is there a concise way to merge norq.config with defaults? 
- * JS is great but I'm sometimes missing Clojure...
- */
-
-var defaults = {
-    name: 'default'
-  , redis: { host: '127.0.0.1', port: 6379 }
-  , http: { port: 5150 }
-  , logs: [ 'Console'
-          , { transport: 'File'
-            , options: { filename: 'logs/http.log' }}]
-  , model: {
-      default: {
-        name: 'default'
-      , options: {}
-    }  
-  }
-}
 
 /**
  * Argument Aliases
@@ -63,8 +48,7 @@ var args = process.argv.slice(2).map(function (arg) {
 });
 
 /**
- * The first arg is a command which stands alone or 
- * determines the meaning of other args
+ * The first arg is a  norq command 
  */
 
 var command = args.shift();
@@ -81,23 +65,15 @@ switch (command) {
     break;
 
   case 'http':
-    // have to insert logger before the router; this is kind of ugly
-    norq.server.stack.splice(2, 0, 
-                            { route: '', 
-                              handle: norq.logger(defaults) });
-    norq.server.norq_client.model = norq.config.model;
-
-    // instead of the above, I want to be able to just write
-    // var server = norq.createServer(norq.config);
-    // server.listen(); // where port is already derived internally from config
-
-    norq.server.listen(5150);
-    console.log('Norq HTTP server listening on port %d', norq.server.address().port);
+    var server = norq.createServer(norq.config);
+    server.listen(5150);
+    console.log('Norq HTTP server listening on port %d', server.address().port);
     break;
 
   case 'repl':
     // need to "exit on exit"? and add a line break in the shell
     // process.on('exit', ...) doesn't work directly?
+    // is this fixed if I upgrade node?
     var context = repl.start('norq> ').context;
     context.norq = norq;
     context.client = norq.createClient(norq.config);
@@ -105,15 +81,12 @@ switch (command) {
 
   case 'init':
     // check for existing file first
-    fs.writeFile('./norq.json', JSON.stringify(defaults), function () {
+    fs.writeFile('./norq.json', JSON.stringify(norq.defaults, null, 2), function () {
       process.exit(1);  
     });
     break;
 
   default:
-    // next line should eventually just be
-    // var client = norq.createClient(config);
-
     var client = norq.createClient(norq.config);
     var operation = client[command];
     if (operation) {
