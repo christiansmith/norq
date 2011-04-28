@@ -83,6 +83,7 @@ For more information on json-schema see: [link]
   * get <queue> <id>
   * set <queue> <id> <json>
   * remove <queue> <id>
+  * flush <queue|all>
 
 ### Use Norq as a library
 

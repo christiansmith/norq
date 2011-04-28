@@ -71,7 +71,7 @@ module.exports = {
       { url: '/' }, 
       { status: 200, headers: { 'Content-Type': 'application/json' }}, 
       function (res) {
-        assert.includes(res.body, JSON.stringify({ message: 'hello!' }));
+        assert.includes(res.body, JSON.stringify({ norq: 'Welcome', version: '0.0.0' }));
       });
   },
 
