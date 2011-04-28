@@ -60,8 +60,14 @@ module.exports.print = function (err, result) {
  */
 
 module.exports.createServer = function createServer (config) {
+  // this whole damn bit is really ugly, but it seems to work
+  // it would be cleaner if we could construct an express app
+  // from a subclass instead of messing with the object.
   var middleware = { route: '', handle: logger(config) };
   http.stack.splice(2, 0, middleware);
   http.norq_client.model = config.model;
+  if (typeof config.redis.db === 'number') {
+    http.norq_client.client.select(config.redis.db);
+  }
   return http;
 };

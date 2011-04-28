@@ -4,10 +4,11 @@ var nodeunit = require('nodeunit')
 
 exports['defaults'] = nodeunit.testCase({
 
-  'specifies redis host, port, and options': function (test) {
-    test.expect(3);
+  'specifies redis host, port, db, and options': function (test) {
+    test.expect(4);
     test.ok(typeof config.defaults.redis.host === 'string');
     test.ok(typeof config.defaults.redis.port === 'number');
+    test.ok(typeof config.defaults.redis.db === 'number');
     test.ok(typeof config.defaults.redis.options === 'object');
     test.done();
   },

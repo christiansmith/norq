@@ -20,6 +20,7 @@ Norq looks for a config file called `norq.json` in the working directory. The co
       "redis": {
         "host": "127.0.0.1",
         "port": 6379,
+        "db": 9,
         "options": {}
       },
       "http": {
@@ -85,12 +86,18 @@ For more information on json-schema see: [link]
   * remove <queue> <id>
   * flush <queue|all>
 
+  Examples with default config:
+
+    $ norq push default '{ "some": "data" }'
+    $ norq peek default
+
+
 ### Use Norq as a library
 
     var norq = require('norq')
       , client = norq.createClient({...});
 
-    // norq client methods take a callback as their last argument
+    // all norq commands are methods that take a callback as their last argument
     client.push('queue-name', {...}, function (err, result) {
       // do your thing 
     });
@@ -124,7 +131,7 @@ For more information on json-schema see: [link]
     $ curl http://<host:port>/<queue>
 
     // push
-    $ curl -XPOST http://localhost:5150/queue -d '{...}'
+    $ curl -XPOST http://localhost:5150/queue -d '{...}' -H 'Content-Type: application/json'
 
     // peek
 
@@ -133,6 +140,13 @@ For more information on json-schema see: [link]
     // range
 
     // etc
+
+## Running the Tests
+
+  Get the source from GitHub, then in the root directory:
+
+  $ nodeunit test/test-norq.js test/test-logger.js test/test-config.js
+  $ expresso test/test-http.js
 
 ## Acknowledgements
 

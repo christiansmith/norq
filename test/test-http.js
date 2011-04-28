@@ -7,11 +7,14 @@ var app = require('../lib/http'),
     assert = require('assert'),
     redis = require('redis').createClient();
 
+redis.select(15);
+
 /**
  * Define a model for testing purposes.
  */
 
 var test_config = {
+    redis: { db: 15 },
     model: {
       pusher: { name: 'pusher' }
     , peeker: { name: 'peeker' }
@@ -43,6 +46,7 @@ var client = norq.createClient(test_config);
  */
 
 app.norq_client.model = test_config.model;
+app.norq_client.client.select(15);
 
 /**
  * Add some items to a queue for testing range, head and tail.
