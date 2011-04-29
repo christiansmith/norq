@@ -81,6 +81,7 @@ For more information on json-schema see: [link]
   * range <queue> <start> <end>
   * head <queue> <length>
   * tail <queue> <length>
+  * page <queue> <page> <size>
   * get <queue> <id>
   * set <queue> <id> <json>
   * remove <queue> <id>
