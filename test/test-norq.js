@@ -558,6 +558,32 @@ exports['tail error'] = nodeunit.testCase({
 
 });
 
+exports['page'] = nodeunit.testCase({
+
+  setUp: function (callback) {
+    redis_client.flushdb();
+    this.client = norq.createClient(test_config);
+    setupQueue(this.client, 'work', 10, function () {
+      callback();
+    });
+  },
+
+  'returns a range computed from page number and page size': function (test) {
+    test.expect(2);
+    var client = this.client;
+    client.page('work', 2, 5, function (err, page) {
+      test.equal(err, null);
+      test.equal(page.length, 5);
+      client.range('work', 5, 9, function (err, range) {
+         test.equal(page, range);
+      })  
+      test.done();
+    });
+  },
+
+});
+
+
 exports['range, head, and tail'] = nodeunit.testCase({
 
   setUp: function (callback) {
