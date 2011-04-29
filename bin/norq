@@ -96,10 +96,25 @@ switch (command) {
     break;
 
   case 'init':
-    // check for existing file first
-    fs.writeFile('./norq.json', JSON.stringify(norq.defaults, null, 2), function () {
-      process.exit(1);  
-    });
+    var msg = 'norq.json already exists in this directory. '
+            + 'Do you want to overwrite it?'
+      , file = 'norq.json'
+      , data = JSON.stringify(norq.defaults, null, 2);
+      
+    if (!exists(file)) {
+      write(file, data);
+      process.exit(1);
+    } else {
+      confirm(msg, function (overwrite) {
+        if (overwrite) {
+          write(file, data);
+          process.exit(1);
+        } else {
+          console.log('init cancelled.');
+          process.exit(1);
+        };
+      });
+    }
     break;
 
   default:
@@ -116,4 +131,23 @@ switch (command) {
       process.exit(1);
     }
     break;
+}
+
+function exists (file) {
+  return fs.readdirSync('./').some(function (f) { 
+    return f === file; 
+  });  
+}
+
+function confirm (msg, fn) {
+  process.stdout.write(msg + ' ');
+  process.stdin.setEncoding('ascii');
+  process.stdin.once('data', function (data) {
+    fn(/^ *y(es)?/i.test(data)); 
+  }).resume();
+}
+
+function write (file, data) {
+  fs.writeFileSync(file, data);
+  console.log('wrote default config to ./' + file);
 }
