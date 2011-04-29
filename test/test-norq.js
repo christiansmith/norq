@@ -48,8 +48,7 @@ exports['norq client object'] = nodeunit.testCase({
  
   'requires a RedisClient object': function (test) {
     test.expect(1);
-    // can't get this test to break. Suspect I'm not using throws correctly.
-    test.throws(function () { new norq.NorqClient(this.model)}, Error);
+    test.throws(function () { new norq.NorqClient(test_config.model); }, Error);
     test.done();
   }
 
@@ -69,8 +68,6 @@ exports['createClient'] = nodeunit.testCase({
   },
 
 });
-
-
 
 exports['methods taking queue as an argument'] = nodeunit.testCase({
 
@@ -428,7 +425,6 @@ exports['size'] = nodeunit.testCase({
   
 });
 
-
 exports['size error'] = nodeunit.testCase({
 
   setUp: function (callback) {
@@ -450,8 +446,6 @@ exports['size error'] = nodeunit.testCase({
   },
 
 });
-
-
 
 exports['range'] = nodeunit.testCase({
 
@@ -549,7 +543,6 @@ exports['tail error'] = nodeunit.testCase({
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
     });
-    // also need to setupQueue
   },
 
   'passes a zcard error to callback': function (test) {
@@ -617,7 +610,7 @@ exports['get error'] = nodeunit.testCase({
   setUp: function (callback) {
     redis_client.flushdb();
     this.error = 'ERR Operation against a key holding the wrong kind of value';
-    this.config= { 
+    this.config = { 
       model: { 
         'wrong:123': { name: 'wrong:123' }, 
         'wrong': { name: 'wrong' }},
