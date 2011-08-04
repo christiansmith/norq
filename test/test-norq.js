@@ -333,7 +333,7 @@ exports['pop error'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.error = 'Error: ERR Operation against a key holding the wrong kind of value';
     this.client = norq.createClient(test_config_wrong);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
@@ -386,7 +386,7 @@ exports['peek error'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.error = 'Error: ERR Operation against a key holding the wrong kind of value';
     this.client = norq.createClient(test_config_wrong);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
@@ -429,7 +429,7 @@ exports['size error'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.error = 'Error: ERR Operation against a key holding the wrong kind of value';
     this.client = norq.createClient(test_config_wrong);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
@@ -472,7 +472,7 @@ exports['range error'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.error = 'Error: ERR Operation against a key holding the wrong kind of value';
     this.client = norq.createClient(test_config_wrong);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
@@ -538,7 +538,7 @@ exports['tail error'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.error = 'Error: ERR Operation against a key holding the wrong kind of value';
     this.client = norq.createClient(test_config_wrong);
     redis_client.set('wrong', 'contrived to test failure', function (err, res) {
       callback();
@@ -635,7 +635,7 @@ exports['get error'] = nodeunit.testCase({
 
   setUp: function (callback) {
     redis_client.flushdb();
-    this.error = 'ERR Operation against a key holding the wrong kind of value';
+    this.error = 'Error: ERR Operation against a key holding the wrong kind of value';
     this.config = { 
       model: { 
         'wrong:123': { name: 'wrong:123' }, 
