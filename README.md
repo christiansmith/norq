@@ -38,7 +38,7 @@ Norq looks for a config file called `norq.json` in the working directory. The co
       }
     }
 
-You can define any number of queues in the model, each with its own schema.
+You can define any number of queues in the model, each with its own [json-schema](http://json-schema.org/).
 
     // ...
     "model": {
@@ -54,7 +54,6 @@ You can define any number of queues in the model, each with its own schema.
     }
     // ...
 
-For more information on json-schema see: [link]
 
 ## Usage
 
@@ -123,24 +122,40 @@ For more information on json-schema see: [link]
 
 ### Use Norq over HTTP
 
-    // In your norq project directory
+In your norq project directory start a HTTP server
+
     $ norq http
 
-    // then access with curl or whatever
+Then access with curl or whatever client you want. Content-Type of HTTP PUT requests has to be application/json. For example:
 
-    // view the model for a queue
-    $ curl http://<host:port>/<queue>
-
-    // push
     $ curl -XPOST http://localhost:5150/queue -d '{...}' -H 'Content-Type: application/json'
 
-    // peek
+HTTP API
 
-    // pop
+    Instance information
 
-    // range
+    server    GET /
+    model     GET /model
+    schema    GET /<queue>/schema
 
-    // etc
+    Queue operations
+
+    push      PUT /<queue>
+    peek      GET /<queue>
+    pop       DEL /<queue>
+
+    List operations
+
+    head      GET /<queue>/head?limit=100     // limit defaults to 10
+    tail      GET /<queue>/tail?limit=100
+    range     GET /<queue>/25..49
+
+    Random access
+
+    set       PUT /<queue>/<id>
+    get       GET /<queue>/<id>
+    remove    DEL /<queue>/<id>
+
 
 ## Running the Tests
 
