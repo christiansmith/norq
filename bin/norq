@@ -42,7 +42,32 @@ var version = '0.0.0';
  * Norq Help
  */
 
-var help = 'RTFS';
+var help = ''
+  + '\n'
+  + '  Usage: norq [command] [args]\n'
+  + '\n'
+  + '  Commands:\n'
+  + '    init       generates a norq.json config file\n'
+  + '    http       starts a norq HTTP server on port 5150\n'
+  + '    repl       starts a repl with a norq client preloaded\n'
+  + '\n'
+  + '  Queue Commands:\n'
+  + '    push <queue> <json>\n'
+  + '    peek <queue>\n'
+  + '    pop <queue>\n'
+  + '    size <queue>\n'
+  + '    range <queue> <start> <end>\n'
+  + '    head <queue> <length>\n'
+  + '    tail <queue> <length>\n'
+  + '    page <queue> <page> <size>\n'
+  + '    get <queue> <id>\n'
+  + '    set <queue> <id> <json>\n'
+  + '    remove <queue> <id>\n'
+  + '    flush <queue|all>\n'
+  + '\n'
+  + '  Options:\n'
+  + '    -h, --help       usage information\n'
+  + '    -v, --version    norq version\n';
 
 /**
  * Argument Aliases
@@ -127,7 +152,7 @@ switch (command) {
       });
       operation.apply(client, args);
     } else {
-      console.log('Ich weiss es nicht!');  
+      console.log(help);
       process.exit(1);
     }
     break;
