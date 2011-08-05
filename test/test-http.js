@@ -133,9 +133,6 @@ module.exports = {
       });
   },
 
-  // size       GET /:queue/stats
-  
-
   'GET /:queue/0..9': function () {
     assert.response(app,
       { url: '/longer/0..9' },

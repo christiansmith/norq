@@ -60,7 +60,6 @@ You can define any number of queues in the model, each with its own [json-schema
     }
     // ...
 
-
 ## Usage
 
     // this creates norq.conf and log/
@@ -79,20 +78,20 @@ You can define any number of queues in the model, each with its own [json-schema
 
 ### Norq commands:
 
-  * push <queue> <json> 
-  * peek <queue>
-  * pop <queue>
-  * size <queue>
-  * range <queue> <start> <end>
-  * head <queue> <length>
-  * tail <queue> <length>
-  * page <queue> <page> <size>
-  * get <queue> <id>
-  * set <queue> <id> <json>
-  * remove <queue> <id>
-  * flush <queue|all>
+    * push <queue> <json> 
+    * peek <queue>
+    * pop <queue>
+    * size <queue>
+    * range <queue> <start> <end>
+    * head <queue> <length>
+    * tail <queue> <length>
+    * page <queue> <page> <size>
+    * get <queue> <id>
+    * set <queue> <id> <json>
+    * remove <queue> <id>
+    * flush <queue|all>
 
-  Examples with default config:
+Examples with default config:
 
     $ norq push default '{ "some": "data" }'
     $ norq peek default
@@ -134,7 +133,7 @@ In your norq project directory start a HTTP server
 
 Then access with curl or whatever client you want. Content-Type of HTTP PUT requests has to be application/json. For example:
 
-    $ curl -XPOST http://localhost:5150/queue -d '{...}' -H 'Content-Type: application/json'
+    $ curl -XPUT http://localhost:5150/queue -d '{...}' -H 'Content-Type: application/json'
 
 HTTP API
 
@@ -179,11 +178,12 @@ HTTP API
   * node-uuid
   * express
   * winston
+  * json-schema
   * ...
 
 ## Support Norq
 
-Norq is free software. I hope it serves you well. If you are using Norq in production, or feel that you are deriving value from it in some way, please consider sponsoring my work with a donation via PayPal.  
+Norq is free software. I hope it serves you well. If you are using Norq in production, or feel that you derive value from it in some way, please consider sponsoring my work with a donation via PayPal.  
 
 ## License
 

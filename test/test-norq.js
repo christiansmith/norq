@@ -106,7 +106,6 @@ exports['methods taking queue as an argument'] = nodeunit.testCase({
   
 });
 
-
 exports['push and set methods'] = nodeunit.testCase({
 
   setUp: function (callback) {
@@ -248,7 +247,6 @@ exports['push error'] = nodeunit.testCase({
   // think up a few more failure cases
 
 });
-
 
 function setupQueue(client, queue, len, callback) {
   if (len > 0) {
@@ -582,7 +580,6 @@ exports['page'] = nodeunit.testCase({
   },
 
 });
-
 
 exports['range, head, and tail'] = nodeunit.testCase({
 
