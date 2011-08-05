@@ -10,6 +10,12 @@ A loosely-ordered random-access queue for JSON documents implemented with Node a
 
 ## Installation
 
+Install globally to use the norq executable:
+
+    $ npm install -g norq
+
+Install locally to use norq as a dependency:
+
     $ npm install norq
 
 ## Configuration
@@ -159,16 +165,15 @@ HTTP API
 
 ## Running the Tests
 
-  Get the source from GitHub, then in the root directory:
+  Get the source from GitHub, install nodeunit and expresso globally, then in the root directory:
 
   $ nodeunit test/test-norq.js test/test-logger.js test/test-config.js
   $ expresso test/test-http.js
 
 ## Acknowledgements
 
-  Thanks to my friends and family for all your support and encouragement.
-
   Thanks to the open source software community for sharing your work. Norq is built with:
+
   * Node.js and Redis (of course)
   * node_redis
   * node-uuid

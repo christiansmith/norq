@@ -1,16 +1,25 @@
 {
   "name": "norq",
-  "description": "Queue implementation for Node backed by Redis",
+  "description": "A loosely-ordered random-access queue for JSON documents implemented with Node.js and Redis.",
   "keywords": ["json", "queue", "redis", "json-schema", "rest"],
   "version": "0.0.0",
   "repository": {
-    "url": ""
+    "url": "git://github.com/christiansmith/norq.git"
   },
   "author": "Christian Smith <smith@anvil.io> (http://anvil.io)",
   "main": "index",
   "bin": { "norq": "./bin/norq" },
   "directories": {
     "lib": "."
+  },
+  "dependencies": {
+    "express": "2.4.3",
+    "winston": "0.3.3",
+    "redis": "0.6.7",
+    "node-uuid": "1.2.0"
+  },
+  "devDependencies": {
+    "nodeunit": "0.5.3"
   },
   "engines": {
     "node": "*"
